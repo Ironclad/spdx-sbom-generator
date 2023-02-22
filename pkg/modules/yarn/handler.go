@@ -94,7 +94,7 @@ func (m *yarn) SetRootModule(path string) error {
 }
 
 // GetRootModule return
-//root package information ex. Name, Version
+// root package information ex. Name, Version
 func (m *yarn) GetRootModule(path string) (*models.Module, error) {
 	r := reader.New(filepath.Join(path, m.metadata.Manifest[0]))
 	pkResult, err := r.ReadJson()
@@ -207,15 +207,16 @@ func (m *yarn) buildDependencies(path string, deps []dependency) ([]models.Modul
 				if name == "optionalDependencies:" {
 					continue
 				}
-
-				version := strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(ar[1]), "\""), "\"")
-				if extractVersion(version) == "*" {
-					continue
-				}
-				mod.Modules[name] = &models.Module{
-					Name:     name,
-					Version:  extractVersion(version),
-					CheckSum: &models.CheckSum{Content: []byte(fmt.Sprintf("%s-%s", name, version))},
+				if len(ar) > 1 {
+					version := strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(ar[1]), "\""), "\"")
+					if extractVersion(version) == "*" {
+						continue
+					}
+					mod.Modules[name] = &models.Module{
+						Name:     name,
+						Version:  extractVersion(version),
+						CheckSum: &models.CheckSum{Content: []byte(fmt.Sprintf("%s-%s", name, version))},
+					}
 				}
 			}
 		}
@@ -390,12 +391,13 @@ func appendNestedDependencies(deps []dependency) []dependency {
 				if name == "optionalDependencies:" {
 					continue
 				}
-
-				version := strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(ar[1]), "\""), "\"")
-				if extractVersion(version) == "*" {
-					continue
+				if len(ar) > 1 {
+					version := strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(ar[1]), "\""), "\"")
+					if extractVersion(version) == "*" {
+						continue
+					}
+					allDeps = append(allDeps, dependency{Name: name, Version: extractVersion(version)})
 				}
-				allDeps = append(allDeps, dependency{Name: name, Version: extractVersion(version)})
 			}
 		}
 	}
