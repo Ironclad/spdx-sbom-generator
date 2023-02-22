@@ -564,7 +564,7 @@ func isDuplicate(value string, spec Spec) bool {
 	return skip
 }
 
-//  Builds Dependency Tree from Gemfile.lock
+// Builds Dependency Tree from Gemfile.lock
 func BuildLockDependencyTree(rows []string) {
 
 	var startIndex, specPosition int
